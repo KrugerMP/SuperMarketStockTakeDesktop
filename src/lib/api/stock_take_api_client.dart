@@ -21,12 +21,16 @@ class StockTakeApiClient {
 
   Future<http.Response> get(String path) => _http.get(_uri(path));
 
-  Future<Map<String, dynamic>?> getJsonMap(String path) async {
+  Future<Object?> getJson(String path) async {
     final res = await get(path);
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw StockTakeApiException(res.statusCode, res.body);
     }
-    final decoded = jsonDecode(utf8.decode(res.bodyBytes));
+    return jsonDecode(utf8.decode(res.bodyBytes));
+  }
+
+  Future<Map<String, dynamic>?> getJsonMap(String path) async {
+    final decoded = await getJson(path);
     if (decoded is Map<String, dynamic>) return decoded;
     if (decoded is Map) return Map<String, dynamic>.from(decoded);
     throw FormatException('Expected JSON object, got ${decoded.runtimeType}');
